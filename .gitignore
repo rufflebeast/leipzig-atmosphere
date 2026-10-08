@@ -1,0 +1,15 @@
+# macOS-Hilfsdateien (entstehen auf der exFAT-Platte automatisch)
+._*
+.DS_Store
+
+# Python
+__pycache__/
+.venv/
+
+# Wird bei jedem Lauf neu erzeugt, lokal wie auf GitHub
+app/data/cloudnet.json
+app/data/dwd.json
+pipeline/.zwischenspeicher/
+
+# Projektnotiz aus dem Obsidian-Vault, nicht öffentlich
+Wetterdaten-Demo.md

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Datenschutz – Wetter über Leipzig</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    // Sprache wie auf der Startseite: ?lang=en, sonst Browsersprache
+    (function () {
+      var wahl = new URLSearchParams(location.search).get("lang");
+      var browser = (navigator.language || "de").slice(0, 2) === "de" ? "de" : "en";
+      document.documentElement.lang = wahl === "en" || wahl === "de" ? wahl : browser;
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-titel-de="Datenschutz – Wetter über Leipzig" data-titel-en="Privacy – Weather above Leipzig">
+  <header class="kopf kopf-klein">
+    <nav class="sprache" aria-label="Sprache / Language">
+      <a href="?lang=de" hreflang="de" lang="de">Deutsch</a>
+      <a href="?lang=en" hreflang="en" lang="en">English</a>
+    </nav>
+    <p class="oberzeile"><a href="./" data-intern><span data-sprache="de">← Wetter über Leipzig</span><span data-sprache="en">← Weather above Leipzig</span></a></p>
+    <h1><span data-sprache="de">Datenschutz</span><span data-sprache="en">Privacy</span></h1>
+  </header>
+
+  <main class="rechtstext">
+    <p class="hinweis-sprache" data-sprache="en">The German version of this privacy notice is the binding one.</p>
+    <h2><span data-sprache="de">Verantwortlich</span><span data-sprache="en">Controller</span></h2>
+    <p>André Künzelmann<br>
+    Heinrich-Kretschmann-Straße 5<br>
+    04451 Borsdorf<br>
+    <span data-sprache="en">Germany</span></p>
+
+    <h2><span data-sprache="de">Was diese Seite selbst erhebt</span><span data-sprache="en">What this page collects itself</span></h2>
+    <p data-sprache="de">Nichts. Die Seite setzt keine Cookies, speichert nichts auf Ihrem Gerät, nutzt keine Analyse- oder Statistikdienste und enthält keine Formulare. Die Diagramm-Bibliothek und die Messdaten liegen mit auf dem Server der Seite. Ihr Browser stellt beim Besuch deshalb keine Anfragen an weitere Dienste. Die gewählte Sprache steht nur in der Adresse der Seite.</p>
+    <p data-sprache="en">Nothing. The page sets no cookies, stores nothing on your device, uses no analytics or statistics services and contains no forms. The chart library and the measurement data are hosted together with the page. Your browser therefore makes no requests to other services during the visit. The selected language is only part of the page address.</p>
+
+    <h2><span data-sprache="de">Bereitstellung über GitHub Pages</span><span data-sprache="en">Hosting on GitHub Pages</span></h2>
+    <p data-sprache="de">Die Seite liegt bei GitHub Pages, einem Dienst der GitHub, Inc. (USA). Beim Aufruf übermittelt Ihr Browser technisch notwendige Daten an GitHub, darunter Ihre IP-Adresse. Nach eigenen Angaben speichert GitHub die IP-Adresse aus Sicherheitsgründen, auch wenn Sie nicht bei GitHub angemeldet sind. Ich selbst habe keinen Zugriff auf diese Protokolle.</p>
+    <p data-sprache="de">Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse ist eine sichere und kostenfreie Bereitstellung der Seite. GitHub ist nach dem EU-US-Datenschutzrahmen (EU-U.S. Data Privacy Framework) zertifiziert. Für Übermittlungen in die USA gilt damit der Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO). Einzelheiten stehen in der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
+    <p data-sprache="en">The page is hosted on GitHub Pages, a service of GitHub, Inc. (USA). When you open it, your browser transmits technically necessary data to GitHub, including your IP address. According to GitHub, the IP address is stored for security purposes, even if you are not signed in to GitHub. I have no access to these logs myself.</p>
+    <p data-sprache="en">The legal basis is Art. 6(1)(f) GDPR. My legitimate interest is providing the page securely and free of charge. GitHub is certified under the EU-U.S. Data Privacy Framework. Transfers to the USA are therefore covered by the European Commission's adequacy decision (Art. 45 GDPR). Details are in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.</p>
+
+    <h2><span data-sprache="de">Links zu anderen Seiten</span><span data-sprache="en">Links to other websites</span></h2>
+    <p data-sprache="de">Die Seite verlinkt auf Angebote Dritter, etwa den Deutschen Wetterdienst oder Cloudnet. Daten gehen erst dann an diese Anbieter, wenn Sie einen Link anklicken. Ab dann gelten deren Datenschutzbestimmungen.</p>
+    <p data-sprache="en">The page links to third-party websites, such as the German Meteorological Service or Cloudnet. Data are only sent to these providers when you click a link. From then on, their privacy policies apply.</p>
+
+    <h2><span data-sprache="de">Ihre Rechte</span><span data-sprache="en">Your rights</span></h2>
+    <p data-sprache="de">Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Widerspruch (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). In Sachsen ist das die <a href="https://www.datenschutz.sachsen.de/">Sächsische Datenschutz- und Transparenzbeauftragte</a>.</p>
+    <p data-sprache="en">You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18) and to object (Art. 21). You may also lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). In Saxony this is the <a href="https://www.datenschutz.sachsen.de/">Saxon Data Protection and Transparency Commissioner</a>.</p>
+
+    <p class="stand"><span data-sprache="de">Stand: Oktober 2026</span><span data-sprache="en">Last updated: October 2026</span></p>
+  </main>
+  <script src="i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Impressum – Wetter über Leipzig</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    // Sprache wie auf der Startseite: ?lang=en, sonst Browsersprache
+    (function () {
+      var wahl = new URLSearchParams(location.search).get("lang");
+      var browser = (navigator.language || "de").slice(0, 2) === "de" ? "de" : "en";
+      document.documentElement.lang = wahl === "en" || wahl === "de" ? wahl : browser;
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-titel-de="Impressum – Wetter über Leipzig" data-titel-en="Legal notice – Weather above Leipzig">
+  <header class="kopf kopf-klein">
+    <nav class="sprache" aria-label="Sprache / Language">
+      <a href="?lang=de" hreflang="de" lang="de">Deutsch</a>
+      <a href="?lang=en" hreflang="en" lang="en">English</a>
+    </nav>
+    <p class="oberzeile"><a href="./" data-intern><span data-sprache="de">← Wetter über Leipzig</span><span data-sprache="en">← Weather above Leipzig</span></a></p>
+    <h1><span data-sprache="de">Impressum</span><span data-sprache="en">Legal notice</span></h1>
+  </header>
+
+  <main class="rechtstext">
+    <p class="hinweis-sprache" data-sprache="en">The German version of this legal notice is the binding one.</p>
+    <h2><span data-sprache="de">Angaben nach §&nbsp;18 Abs.&nbsp;1 Medienstaatsvertrag</span><span data-sprache="en">Information under Section 18(1) of the German Interstate Media Treaty (MStV)</span></h2>
+    <p>André Künzelmann<br>
+    Heinrich-Kretschmann-Straße 5<br>
+    04451 Borsdorf<br>
+    <span data-sprache="en">Germany</span></p>
+
+    <h2><span data-sprache="de">Verantwortlich für den Inhalt nach §&nbsp;18 Abs.&nbsp;2 Medienstaatsvertrag</span><span data-sprache="en">Responsible for the content under Section 18(2) MStV</span></h2>
+    <p><span data-sprache="de">André Künzelmann, Anschrift wie oben</span><span data-sprache="en">André Künzelmann, address as above</span></p>
+
+    <h2><span data-sprache="de">Hinweis</span><span data-sprache="en">Note</span></h2>
+    <p data-sprache="de">Diese Seite ist eine private Demonstration und kein Angebot des Leibniz-Instituts für Troposphärenforschung (TROPOS), von ACTRIS oder des Deutschen Wetterdienstes. Quellen, Lizenzen und Hinweise zur Haftung stehen am Ende der <a href="./" data-intern>Startseite</a>.</p>
+    <p data-sprache="en">This page is a private demonstration and not a service of the Leibniz Institute for Tropospheric Research (TROPOS), ACTRIS or the German Meteorological Service. Sources, licences and liability notes are at the bottom of the <a href="./" data-intern>home page</a>.</p>
+  </main>
+  <script src="i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wetter über Leipzig</title>
+  <!-- Nicht in Suchmaschinen aufnehmen: die Seite ist eine Arbeitsprobe, kein öffentliches Angebot -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    // Sprache festlegen, bevor die Seite gezeichnet wird: ?lang=en in der Adresse,
+    // sonst die Sprache des Browsers. Es wird nichts gespeichert.
+    (function () {
+      var wahl = new URLSearchParams(location.search).get("lang");
+      var browser = (navigator.language || "de").slice(0, 2) === "de" ? "de" : "en";
+      document.documentElement.lang = wahl === "en" || wahl === "de" ? wahl : browser;
+    })();
+  </script>
+  <link rel="stylesheet" href="lib/uPlot.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-titel-de="Wetter über Leipzig" data-titel-en="Weather above Leipzig">
+  <header class="kopf">
+    <nav class="sprache" aria-label="Sprache / Language">
+      <a href="?lang=de" hreflang="de" lang="de">Deutsch</a>
+      <a href="?lang=en" hreflang="en" lang="en">English</a>
+    </nav>
+    <p class="oberzeile"><span data-sprache="de">Messdaten live</span><span data-sprache="en">Live measurements</span></p>
+    <h1><span data-sprache="de">Wetter über Leipzig</span><span data-sprache="en">Weather above Leipzig</span></h1>
+    <p class="unterzeile" data-sprache="de">Bodenwetter und Wolken an drei Messstationen in und bei Leipzig.</p>
+    <p class="unterzeile" data-sprache="en">Surface weather and clouds at three measurement stations in and near Leipzig, Germany.</p>
+  </header>
+
+  <main>
+    <!-- Hinweis bei veralteten Daten, von app.js ein- und ausgeblendet -->
+    <p id="warnung" class="warnung" role="status" hidden></p>
+
+    <section class="karte" aria-labelledby="live-titel">
+      <div class="karte-kopf">
+        <h2 id="live-titel"><span data-sprache="de">Jetzt in Leipzig-Holzhausen</span><span data-sprache="en">Now at Leipzig-Holzhausen</span></h2>
+        <!-- Zeitpunkt der Messung, wird von app.js gefüllt -->
+        <p id="zeitstempel" class="zeitstempel">…</p>
+      </div>
+
+      <!-- Die Messwerte. Jedes <dd> hat eine id, über die app.js den Wert einträgt. -->
+      <dl class="werte">
+        <div class="wert gross">
+          <dt><span data-sprache="de">Temperatur</span><span data-sprache="en">Temperature</span></dt>
+          <dd><span id="temperatur">–</span> °C</dd>
+        </div>
+        <div class="wert">
+          <dt><span data-sprache="de">Relative Feuchte</span><span data-sprache="en">Relative humidity</span></dt>
+          <dd><span id="feuchte">–</span> %</dd>
+        </div>
+        <div class="wert">
+          <dt><span data-sprache="de">Luftdruck (Meeresniveau)</span><span data-sprache="en">Pressure (sea level)</span></dt>
+          <dd><span id="druck">–</span> hPa</dd>
+        </div>
+        <div class="wert">
+          <dt>Wind</dt>
+          <dd><span id="wind">–</span> km/h <span id="windrichtung" class="klein"></span></dd>
+        </div>
+        <div class="wert">
+          <dt><span data-sprache="de">Böen</span><span data-sprache="en">Gusts</span></dt>
+          <dd><span id="boeen">–</span> km/h</dd>
+        </div>
+        <div class="wert">
+          <dt><span data-sprache="de">Niederschlag (letzte Stunde)</span><span data-sprache="en">Precipitation (last hour)</span></dt>
+          <dd><span id="niederschlag">–</span> mm</dd>
+        </div>
+        <div class="wert">
+          <dt><span data-sprache="de">Bewölkung</span><span data-sprache="en">Cloud cover</span></dt>
+          <dd><span id="bewoelkung">–</span> %</dd>
+        </div>
+      </dl>
+      <p class="quelle"><span data-sprache="de">Quelle: Deutscher Wetterdienst, abgerufen über Bright Sky</span><span data-sprache="en">Source: Deutscher Wetterdienst (German Meteorological Service), retrieved via Bright Sky</span></p>
+    </section>
+
+    <section class="karte" aria-labelledby="verlauf-titel">
+      <div class="karte-kopf">
+        <h2 id="verlauf-titel"><span data-sprache="de">Die letzten 48 Stunden</span><span data-sprache="en">The last 48 hours</span></h2>
+        <p id="verlauf-stand" class="zeitstempel">…</p>
+      </div>
+
+      <div class="stationen">
+        <div>
+          <p class="hinweis" data-sprache="de">Drei Stationen: <strong>Leipzig-Holzhausen</strong> (DWD, Bodenwetter), das <strong>Institutsdach des TROPOS</strong> in Leipzig und das <strong>TROPOS-Messfeld Melpitz</strong> bei Torgau. Die beiden TROPOS-Stationen messen mit Wolkenradar, Lidar und Mikrowellenradiometer, was über ihnen in der Atmosphäre passiert. Mit dem Mauszeiger oder per Fingertipp lassen sich die Werte ablesen. Alle Diagramme folgen derselben Zeitachse. <a href="#erklaerung">Was die Werte bedeuten</a> und <a href="#verlaesslichkeit">wie verlässlich sie sind</a>, steht weiter unten.</p>
+          <p class="hinweis" data-sprache="en">Three stations: <strong>Leipzig-Holzhausen</strong> (German Meteorological Service, surface weather), the <strong>roof of the TROPOS institute</strong> in Leipzig and the <strong>TROPOS field site Melpitz</strong> near Torgau. The two TROPOS stations use cloud radar, lidar and microwave radiometer to measure what is happening in the atmosphere above them. Hover with the mouse or tap to read the values. All charts share the same time axis. <a href="#erklaerung">What the values mean</a> and <a href="#verlaesslichkeit">how reliable they are</a> is explained further down.</p>
+        </div>
+
+        <!-- Lageskizze: Positionen aus den Koordinaten berechnet (10 Pixel = 1 km) -->
+        <figure class="karte-skizze">
+          <svg viewBox="0 30 590 340" role="img" aria-labelledby="skizze-titel">
+            <title id="skizze-titel">Lage der drei Stationen: Holzhausen und das TROPOS-Dach in Leipzig, Melpitz rund 40 km nordöstlich bei Torgau. / Location of the three stations: Holzhausen and the TROPOS roof in Leipzig, Melpitz about 40 km north-east near Torgau.</title>
+            <rect x="0" y="30" width="590" height="340" fill="#F3F6F7"/>
+            <!-- Orte zur Orientierung -->
+            <circle cx="85.4" cy="309.9" r="4" fill="#3A4A50"/>
+            <text x="74" y="306" text-anchor="end" class="ort">Leipzig</text>
+            <circle cx="524.4" cy="66" r="4" fill="#3A4A50"/>
+            <text x="512" y="62" text-anchor="end" class="ort">Torgau</text>
+            <!-- Stationen -->
+            <circle cx="136" cy="337.2" r="7" fill="#5E6E73"/>
+            <text x="150" y="350" class="station">Holzhausen</text>
+            <circle cx="128.4" cy="295.2" r="7" fill="#0A5C6D"/>
+            <text x="142" y="288" class="station"><tspan data-sprache="de">TROPOS-Dach</tspan><tspan data-sprache="en">TROPOS roof</tspan></text>
+            <circle cx="472" cy="99.5" r="7" fill="#C0712B"/>
+            <text x="486" y="118" class="station">Melpitz</text>
+            <!-- Maßstab und Nordpfeil -->
+            <line x1="420" y1="345" x2="520" y2="345" stroke="#3A4A50" stroke-width="2"/>
+            <text x="470" y="337" text-anchor="middle" class="ort">10 km</text>
+            <path d="M565 70 L573 92 L565 87 L557 92 Z" fill="#3A4A50"/>
+            <text x="565" y="62" text-anchor="middle" class="ort">N</text>
+          </svg>
+        </figure>
+      </div>
+
+      <!-- Jedes Diagramm bekommt einen eigenen Container, charts.js zeichnet hinein -->
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Temperatur und Taupunkt</span> in 2 m Höhe, °C</figcaption>
+        <figcaption data-sprache="en"><span class="titel">Temperature and dew point</span> at 2 m height, °C</figcaption>
+        <div id="d-temperatur"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Niederschlag</span> je Stunde, mm</figcaption>
+        <figcaption data-sprache="en"><span class="titel">Precipitation</span> per hour, mm</figcaption>
+        <div id="d-niederschlag"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Wasserdampf</span> in der gesamten Luftsäule, kg/m²</figcaption>
+        <figcaption data-sprache="en"><span class="titel">Water vapour</span> in the entire air column, kg/m²</figcaption>
+        <div id="d-wasserdampf"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Flüssigwasser in Wolken</span> (Flüssigwasserpfad), g/m²</figcaption>
+        <figcaption data-sprache="en"><span class="titel">Liquid water in clouds</span> (liquid water path), g/m²</figcaption>
+        <div id="d-fluessigwasser"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Wolkenhöhe</span> über Grund, km &nbsp;·&nbsp; ● Wolkenbasis &nbsp;○ Wolkenobergrenze</figcaption>
+        <figcaption data-sprache="en"><span class="titel">Cloud height</span> above ground, km &nbsp;·&nbsp; ● cloud base &nbsp;○ cloud top</figcaption>
+        <div id="d-wolken"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Was über dem TROPOS-Dach in der Luft ist</span>, Höhe über Grund in km</figcaption>
+        <figcaption data-sprache="en"><span class="titel">What is in the air above the TROPOS roof</span>, height above ground in km</figcaption>
+        <div id="d-klassen-leipzig"></div>
+      </figure>
+      <figure class="diagramm">
+        <figcaption data-sprache="de"><span class="titel">Was über Melpitz in der Luft ist</span>, Höhe über Grund in km</figcaption>
+        <figcaption data-sprache="en"><span class="titel">What is in the air above Melpitz</span>, height above ground in km</figcaption>
+        <div id="d-klassen-melpitz"></div>
+      </figure>
+      <ul id="klassen-legende" class="klassen-legende"></ul>
+      <p class="hinweis klein" data-sprache="de">Cloudnet wertet Wolkenradar, Lidar und Mikrowellenradiometer gemeinsam aus und ordnet jedem Punkt über der Station eine Klasse zu. Weiß bedeutet klare Luft. Regen schwächt die Signale von Lidar und Radar, oberhalb von Regen sind die Angaben deshalb unsicherer.</p>
+      <p class="hinweis klein" data-sprache="en">Cloudnet combines cloud radar, lidar and microwave radiometer and assigns a class to every point above the station. White means clear air. Rain weakens the lidar and radar signals, so the classification above rain is less certain.</p>
+
+      <p class="hinweis klein" data-sprache="de">Die Cloudnet-Daten der TROPOS-Stationen werden einige Male am Tag verarbeitet und enden deshalb einige Stunden vor dem aktuellen Zeitpunkt. Werte des Mikrowellenradiometers bei Regen sind ausgeblendet, weil die nasse Geräteabdeckung die Messung verfälscht.</p>
+      <p class="hinweis klein" data-sprache="en">The Cloudnet data from the TROPOS stations are processed a few times a day and therefore end a few hours before the present. Microwave radiometer values during rain are hidden because the wet instrument cover distorts the measurement.</p>
+      <p class="quelle"><span data-sprache="de">Datenbasis: Deutscher Wetterdienst (Holzhausen) und Cloudnet/ACTRIS mit Messungen des TROPOS (Leipzig, Melpitz), jeweils bearbeitet. Einzelheiten unten.</span><span data-sprache="en">Data: Deutscher Wetterdienst (Holzhausen) and Cloudnet/ACTRIS with measurements by TROPOS (Leipzig, Melpitz), both processed. Details below.</span></p>
+    </section>
+
+    <section class="karte" id="erklaerung" aria-labelledby="erklaerung-titel">
+      <h2 id="erklaerung-titel"><span data-sprache="de">Was hier gemessen wird</span><span data-sprache="en">What is measured here</span></h2>
+      <p class="hinweis" data-sprache="de">Die Werte im oberen Teil kennt man aus dem Wetterbericht: Sie beschreiben die Luft in Bodennähe. Die TROPOS-Stationen schauen dagegen nach oben. Sie messen, wie viel Wasser über ihnen in der Luft steckt, ob es als Dampf, als Tröpfchen oder als Eis vorliegt und in welcher Höhe die Wolken hängen. Für Wetter und Klima sind Wolken eine der größten offenen Fragen: Sie kühlen, indem sie Sonnenlicht zurückwerfen, und wärmen, indem sie Wärmestrahlung vom Boden zurückhalten. Wie sich beides verändert, lässt sich nur mit langen, genauen Messreihen klären.</p>
+      <p class="hinweis" data-sprache="en">The values at the top are familiar from the weather report: they describe the air near the ground. The TROPOS stations look upwards instead. They measure how much water is in the air above them, whether it is vapour, droplets or ice, and at what height the clouds are. Clouds are one of the largest open questions for weather and climate: they cool by reflecting sunlight and warm by trapping heat radiation from the ground. How both effects change can only be answered with long, accurate measurement series.</p>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Temperatur und Taupunkt</span><span data-sprache="en">Temperature and dew point</span></summary>
+        <p data-sprache="de">Die Temperatur wird in 2 m Höhe gemessen, im Schatten und gut belüftet, damit die Sonne das Thermometer nicht aufheizt. Der Taupunkt ist die Temperatur, auf die sich die Luft abkühlen müsste, damit Wasserdampf zu Tröpfchen kondensiert. Liegen beide Linien dicht beieinander, ist die Luft fast gesättigt. Dann bilden sich leicht Nebel, Tau oder tiefe Wolken.</p>
+        <p data-sprache="en">Temperature is measured at a height of 2 m, in the shade and well ventilated, so that the sun does not heat the thermometer. The dew point is the temperature to which the air would have to cool for water vapour to condense into droplets. When the two lines are close together, the air is nearly saturated. Fog, dew or low clouds then form easily.</p>
+      </details>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Niederschlag</span><span data-sprache="en">Precipitation</span></summary>
+        <p data-sprache="de">Angegeben ist, wie viel Regen in der vorangegangenen Stunde gefallen ist. Ein Millimeter entspricht einem Liter Wasser auf einem Quadratmeter. In Holzhausen misst ein Niederschlagsmesser des DWD, in Melpitz ein Wägeregenmesser, der das gesammelte Wasser wiegt.</p>
+        <p data-sprache="en">The chart shows how much rain fell in the preceding hour. One millimetre equals one litre of water per square metre. Holzhausen has a DWD precipitation gauge, Melpitz a weighing gauge that weighs the collected water.</p>
+      </details>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Wasserdampf in der gesamten Luftsäule</span><span data-sprache="en">Water vapour in the entire air column</span></summary>
+        <p data-sprache="de">Wasserdampf ist unsichtbar. Würde man allen Dampf über der Station bis an den Rand der Atmosphäre zu Wasser verdichten, ergäbe sich eine Wasserschicht von einigen Millimetern bis wenigen Zentimetern. Ein Kilogramm pro Quadratmeter entspricht dabei einem Millimeter. In Mitteleuropa sind es im Winter oft unter 10, an schwülen Sommertagen 30 bis 40 kg/m². Der Wert zeigt, wie viel Wasser für Wolken und Niederschlag bereitsteht. Steigt er rasch an, kommt meist feuchte Luft heran, etwa vor einer Front.</p>
+        <p data-sprache="en">Water vapour is invisible. If all the vapour above the station, up to the top of the atmosphere, were condensed into water, it would form a layer between a few millimetres and a few centimetres deep. One kilogram per square metre equals one millimetre. In Central Europe the value is often below 10 kg/m² in winter and 30 to 40 kg/m² on humid summer days. It shows how much water is available for clouds and precipitation. A rapid rise usually means moist air is arriving, for example ahead of a front.</p>
+      </details>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Flüssigwasser in Wolken</span><span data-sprache="en">Liquid water in clouds</span></summary>
+        <p data-sprache="de">Der Flüssigwasserpfad gibt an, wie viel Wasser in Form von Wolkentröpfchen über der Station schwebt, in Gramm pro Quadratmeter. Eis zählt nicht dazu. Dünne Schichtwolken liegen meist unter 100 g/m², dichte Regen- und Gewitterwolken bei mehreren Hundert. Der Wert bestimmt, wie viel Sonnenlicht eine Wolke durchlässt. Werte knapp unter null sind Messrauschen bei wolkenfreiem Himmel.</p>
+        <p data-sprache="en">The liquid water path is the amount of water held as cloud droplets above the station, in grams per square metre. Ice is not included. Thin layer clouds are usually below 100 g/m², dense rain and thunderstorm clouds reach several hundred. The value determines how much sunlight a cloud lets through. Values slightly below zero are measurement noise under a clear sky.</p>
+      </details>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Wolkenbasis und Wolkenobergrenze</span><span data-sprache="en">Cloud base and cloud top</span></summary>
+        <p data-sprache="de">Die Wolkenbasis ist die Unterkante der untersten Wolke, die Obergrenze die höchste Stelle, an der die Geräte noch Wolkenteilchen erkennen. Daraus ergibt sich, wie dick eine Wolke ist und ob sie bis in Höhen reicht, in denen sie vereist. Hohe Eiswolken liegen in unseren Breiten meist zwischen 6 und 12 km. Fehlen Punkte, war der Himmel frei oder es lagen keine Daten vor.</p>
+        <p data-sprache="en">The cloud base is the lower edge of the lowest cloud, the cloud top the highest point at which the instruments still detect cloud particles. Together they show how thick a cloud is and whether it reaches heights where it freezes. In mid-latitudes, high ice clouds are usually between 6 and 12 km. Where points are missing, the sky was clear or no data were available.</p>
+      </details>
+
+      <details class="erklaerung">
+        <summary><span data-sprache="de">Die Messgeräte: Wolkenradar, Lidar, Mikrowellenradiometer</span><span data-sprache="en">The instruments: cloud radar, lidar, microwave radiometer</span></summary>
+        <p data-sprache="de"><strong>Wolkenradar.</strong> Es sendet kurze Mikrowellenpulse senkrecht nach oben und misst das Echo von Tröpfchen, Eiskristallen und Regentropfen. Das Radar blickt in die Wolke hinein und bis zu ihrer Obergrenze. In Leipzig arbeitet es bei 94 Gigahertz, in Melpitz bei 35 Gigahertz.</p>
+        <p data-sprache="de"><strong>Lidar.</strong> Es arbeitet wie ein Radar, aber mit Laserlicht. Kleine Tröpfchen und Staubteilchen werfen das Licht stark zurück, deshalb erkennt das Lidar die Wolkenunterkante sehr genau. In dichte Wolken dringt es nur wenige Hundert Meter ein. Ein Ceilometer ist ein einfaches Lidar, das vor allem die Wolkenbasis misst.</p>
+        <p data-sprache="de"><strong>Mikrowellenradiometer.</strong> Es sendet nichts aus, sondern empfängt die schwache Mikrowellenstrahlung, die Wasserdampf und Wolkenwasser selbst abgeben. Jede Substanz strahlt bei bestimmten Frequenzen. Aus mehreren Kanälen um 22 bis 31 Gigahertz berechnet das Gerät Wasserdampf und Flüssigwasser. Bei Regen ist die Abdeckung nass und die Messung unbrauchbar, deshalb fehlen dann Werte.</p>
+        <p data-sprache="de">Keines der Geräte sieht alles. Erst zusammen ergeben sie ein Bild der Wolke vom Boden bis zur Obergrenze. Das Verfahren dafür heißt Cloudnet: Es legt die Messungen aller Geräte auf ein gemeinsames Raster und ordnet jedem Punkt eine Klasse zu, etwa Tröpfchen, Eis, Regen oder Staub.</p>
+        <p data-sprache="en"><strong>Cloud radar.</strong> It sends short microwave pulses vertically upwards and measures the echo from droplets, ice crystals and raindrops. The radar sees into the cloud and up to its top. In Leipzig it operates at 94 gigahertz, in Melpitz at 35 gigahertz.</p>
+        <p data-sprache="en"><strong>Lidar.</strong> It works like a radar, but with laser light. Small droplets and dust particles reflect the light strongly, so the lidar detects the cloud base very precisely. It penetrates only a few hundred metres into dense clouds. A ceilometer is a simple lidar used mainly to measure cloud base.</p>
+        <p data-sprache="en"><strong>Microwave radiometer.</strong> It does not transmit anything. It receives the weak microwave radiation that water vapour and cloud water emit themselves. Each substance emits at particular frequencies. From several channels between 22 and 31 gigahertz, the instrument derives water vapour and liquid water. When it rains, the cover is wet and the measurement is unusable, which is why values are missing then.</p>
+        <p data-sprache="en">None of the instruments sees everything. Only together do they give a picture of the cloud from the ground to its top. The method for this is called Cloudnet: it puts the measurements of all instruments on a common grid and assigns a class to each point, such as droplets, ice, rain or dust.</p>
+      </details>
+    </section>
+
+    <section class="karte" id="verlaesslichkeit" aria-labelledby="verlaesslichkeit-titel">
+      <h2 id="verlaesslichkeit-titel"><span data-sprache="de">Wie verlässlich sind die Werte?</span><span data-sprache="en">How reliable are the values?</span></h2>
+      <p class="hinweis" data-sprache="de"><strong>Leipzig-Holzhausen</strong> ist eine Station des Deutschen Wetterdienstes. Ihre Werte sind amtliche Messungen. Damit sie mit Stationen weltweit vergleichbar sind, folgen Aufstellung und Geräte den Vorgaben der Weltorganisation für Meteorologie (<a href="https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0">WMO-Leitfaden Nr. 8</a>, englisch): Temperatur und Feuchte in 2 m Höhe in einem belüfteten Strahlungsschutz über kurzem Rasen, Wind in 10 m Höhe auf freiem Gelände, regelmäßig kalibrierte Sensoren. Der DWD prüft die Daten auf Fehler. Die Seite zeigt die ersten, noch ungeprüften Werte, geprüfte Zeitreihen veröffentlicht der DWD später.</p>
+      <p class="hinweis" data-sprache="en"><strong>Leipzig-Holzhausen</strong> is a station of the German Meteorological Service (DWD). Its values are official measurements. To make them comparable with stations worldwide, siting and instruments follow the rules of the World Meteorological Organization (<a href="https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/instruments-and-methods-of-observation-programme-imop/guide-instruments-and-methods-of-observation-wmo-no-8-0">WMO Guide No. 8</a>): temperature and humidity at 2 m in a ventilated radiation shield above short grass, wind at 10 m in open terrain, regularly calibrated sensors. The DWD checks the data for errors. This page shows the first, not yet checked values. The DWD publishes checked time series later.</p>
+      <p class="hinweis" data-sprache="de">Die <strong>TROPOS-Stationen</strong> liefern Forschungsdaten, keine amtlichen Wetterdaten. Sie gehören zu ACTRIS, der europäischen Forschungsinfrastruktur für Aerosole, Wolken und Spurengase. ACTRIS legt einheitliche Regeln für Betrieb, Kalibrierung und Auswertung fest, damit Messungen aus ganz Europa vergleichbar sind. Verarbeitet werden die Daten am Finnischen Meteorologischen Institut mit einer offenen, dokumentierten Software, die jede Datei automatisch prüft. Die Daten der letzten Tage gelten als vorläufig und können noch neu berechnet werden.</p>
+      <p class="hinweis" data-sprache="en">The <strong>TROPOS stations</strong> provide research data, not official weather data. They are part of ACTRIS, the European research infrastructure for aerosols, clouds and trace gases. ACTRIS sets common rules for operation, calibration and analysis so that measurements from across Europe are comparable. The data are processed at the Finnish Meteorological Institute with open, documented software that checks every file automatically. Data from the last few days are provisional and may still be recalculated.</p>
+      <p class="hinweis" data-sprache="de">Für diese Seite werden die Messungen zusätzlich bearbeitet: auf 5 Minuten zusammengefasst, Radiometerwerte bei Regen entfernt, offensichtlich fehlerhafte Bodensensoren nicht verwendet. Die Diagramme eignen sich deshalb zum Anschauen, nicht als Grundlage für Gutachten oder wissenschaftliche Auswertungen. Dafür sind die Originaldaten beim DWD und bei Cloudnet zu verwenden.</p>
+      <p class="hinweis" data-sprache="en">For this page the measurements are processed further: averaged over 5 minutes, radiometer values during rain removed, obviously faulty surface sensors left out. The charts are therefore meant for viewing, not as a basis for expert reports or scientific analysis. For that, use the original data from the DWD and Cloudnet.</p>
+    </section>
+  </main>
+
+  <footer class="fuss">
+    <h2 class="fuss-titel"><span data-sprache="de">Quellen und Lizenzen</span><span data-sprache="en">Sources and licences</span></h2>
+    <ul data-sprache="de">
+      <li><strong>Leipzig-Holzhausen:</strong> Datenbasis: <a href="https://www.dwd.de/opendata">Deutscher Wetterdienst</a>, Einzelwerte grafisch dargestellt. Lizenz <a href="https://creativecommons.org/licenses/by/4.0/deed.de">CC BY 4.0</a>. Abgerufen über <a href="https://brightsky.dev/">Bright Sky</a>.</li>
+      <li><strong>TROPOS-Dach Leipzig und Melpitz:</strong> Messungen des <a href="https://www.tropos.de/">Leibniz-Instituts für Troposphärenforschung (TROPOS)</a>, verarbeitet und bereitgestellt von <a href="https://cloudnet.fmi.fi/">Cloudnet</a> (ACTRIS, Finnisches Meteorologisches Institut). Die Klassifikation nutzt Modelldaten des ECMWF. Lizenz <a href="https://creativecommons.org/licenses/by/4.0/deed.de">CC BY 4.0</a>. Änderungen: auf 5 Minuten zusammengefasst, Radiometerwerte bei Regen entfernt, Niederschlag stündlich summiert, Klassifikation auf 120 m Höhe zusammengefasst.</li>
+      <li><strong>Diagramme:</strong> <a href="https://github.com/leeoniya/uPlot">uPlot</a> von Leon Sorokin, MIT-Lizenz.</li>
+      <li><strong>Quellcode dieser Seite:</strong> <a href="https://github.com/rufflebeast/leipzig-atmosphere">github.com/rufflebeast/leipzig-atmosphere</a></li>
+    </ul>
+    <ul data-sprache="en">
+      <li><strong>Leipzig-Holzhausen:</strong> Data: <a href="https://www.dwd.de/opendata">Deutscher Wetterdienst</a>, individual values shown as charts. Licence <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Retrieved via <a href="https://brightsky.dev/">Bright Sky</a>.</li>
+      <li><strong>TROPOS roof Leipzig and Melpitz:</strong> Measurements by the <a href="https://www.tropos.de/en/">Leibniz Institute for Tropospheric Research (TROPOS)</a>, processed and provided by <a href="https://cloudnet.fmi.fi/">Cloudnet</a> (ACTRIS, Finnish Meteorological Institute). The classification uses ECMWF model data. Licence <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Changes: averaged over 5 minutes, radiometer values during rain removed, precipitation summed per hour, classification aggregated to 120 m in height.</li>
+      <li><strong>Charts:</strong> <a href="https://github.com/leeoniya/uPlot">uPlot</a> by Leon Sorokin, MIT licence.</li>
+      <li><strong>Source code of this page:</strong> <a href="https://github.com/rufflebeast/leipzig-atmosphere">github.com/rufflebeast/leipzig-atmosphere</a></li>
+    </ul>
+    <p data-sprache="de">Private Demonstration von André Künzelmann. Kein Angebot des TROPOS, von ACTRIS oder des Deutschen Wetterdienstes. Amtliche Wetterwarnungen gibt es beim <a href="https://www.dwd.de/">Deutschen Wetterdienst</a>.</p>
+    <p data-sprache="en">Private demonstration by André Künzelmann. Not a service of TROPOS, ACTRIS or the German Meteorological Service. Official weather warnings are issued by the <a href="https://www.dwd.de/EN/">Deutscher Wetterdienst</a>.</p>
+
+    <h2 class="fuss-titel"><span data-sprache="de">Haftung</span><span data-sprache="en">Liability</span></h2>
+    <p data-sprache="de">Die Inhalte dieser Seite sind mit Sorgfalt erstellt. Für Richtigkeit, Vollständigkeit und Aktualität der Texte und Messwerte übernehme ich keine Gewähr. Die Messwerte stammen aus öffentlich zugänglichen Datenangeboten von DWD und Cloudnet, die unter offenen Lizenzen stehen. Sie werden automatisch abgerufen und nicht von Hand geprüft.</p>
+    <p data-sprache="de">Die Seite enthält Links zu Angeboten Dritter. Auf deren Inhalte habe ich keinen Einfluss, verantwortlich ist der jeweilige Anbieter. Beim Setzen der Links waren keine Rechtsverstöße erkennbar. Werden mir Rechtsverletzungen bekannt, entferne ich die betreffenden Links umgehend. Für die dauerhafte Erreichbarkeit der verlinkten Seiten kann ich nicht einstehen.</p>
+    <p data-sprache="en">The content of this page has been prepared with care. I accept no liability for the accuracy, completeness or timeliness of the texts and measurements. The measurements come from publicly accessible data services of the DWD and Cloudnet that are published under open licences. They are retrieved automatically and not checked by hand.</p>
+    <p data-sprache="en">This page contains links to third-party websites. I have no influence over their content, for which the respective provider is responsible. No legal violations were apparent when the links were set. If I become aware of any violation, I will remove the link immediately. I cannot guarantee that linked pages remain available.</p>
+    <p class="rechtliches"><a href="impressum.html" data-intern><span data-sprache="de">Impressum</span><span data-sprache="en">Legal notice</span></a> · <a href="datenschutz.html" data-intern><span data-sprache="de">Datenschutz</span><span data-sprache="en">Privacy</span></a></p>
+  </footer>
+
+  <script src="lib/uPlot.iife.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="charts.js"></script>
+</body>
+</html>

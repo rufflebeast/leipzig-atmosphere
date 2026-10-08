@@ -1,0 +1,73 @@
+# Holt alle 20 Minuten die Messdaten und veröffentlicht die Seite über GitHub Pages.
+#
+# Ablauf: Rechner bei GitHub starten → Python-Pipeline ausführen → Ordner app/
+# (mit frischer data/dwd.json und data/cloudnet.json) als Webseite veröffentlichen.
+# Schlägt die Pipeline fehl, bleibt die zuletzt veröffentlichte Fassung online.
+
+name: Seite aktualisieren
+
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"   # alle 20 Minuten, nicht zur vollen Stunde (dann ist GitHub überlastet)
+  push:
+    branches: [main]       # nach jeder Änderung am Code
+  workflow_dispatch:       # Knopf „Run workflow“ zum Starten von Hand
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nie zwei Veröffentlichungen gleichzeitig
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Pakete installieren
+        run: pip install -r pipeline/requirements.txt
+
+      # Rechenschritte prüfen. Schlägt ein Test fehl, wird nichts veröffentlicht.
+      - name: Tests
+        run: python -m unittest discover -s pipeline -v
+
+      # Bereits ausgelesene Cloudnet-Dateien vom letzten Lauf zurückholen,
+      # damit nur geänderte Dateien neu geladen werden
+      - uses: actions/cache@v4
+        with:
+          path: pipeline/.zwischenspeicher
+          key: cloudnet-${{ github.run_id }}
+          restore-keys: cloudnet-
+
+      - name: DWD-Daten holen
+        run: python pipeline/dwd_holen.py
+
+      - name: Cloudnet-Daten holen
+        run: python pipeline/cloudnet_holen.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+
+  veroeffentlichen:
+    needs: bauen
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

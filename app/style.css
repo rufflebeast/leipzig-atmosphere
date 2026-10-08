@@ -1,0 +1,179 @@
+/* Farben aus Andrés Branding. Alle Farben stehen hier an einer Stelle,
+   der Rest der Datei verweist nur auf diese Variablen. */
+:root {
+  --anthrazit: #1F2527;
+  --offwhite: #F8F8F8;
+  --petrol: #0A5C6D;
+  --dunkelgrau: #3A4A50;
+  --linie: #DDE3E5;
+  --gedaempft: #5E6E73;
+  --flaeche: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--offwhite);
+  color: var(--anthrazit);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+a { color: var(--petrol); }
+
+/* Kopfbereich in Dunkelgrau, nicht schwarz */
+.kopf {
+  background: var(--dunkelgrau);
+  color: var(--offwhite);
+  padding: 48px 16px 40px;
+}
+.kopf > * { max-width: 960px; margin-left: auto; margin-right: auto; }
+.oberzeile {
+  margin-top: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8FC8D4;
+  font-weight: 700;
+}
+h1 { margin: 0.2em auto; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; }
+.unterzeile { margin-bottom: 0; color: #C0D8DC; }
+
+main { max-width: 960px; margin: 0 auto; padding: 32px 16px; }
+
+.karte {
+  background: var(--flaeche);
+  border: 1px solid var(--linie);
+  border-radius: 6px;
+  padding: 24px;
+}
+.karte-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+h2 { margin: 0; font-size: 1.25rem; color: var(--petrol); }
+.zeitstempel { margin: 0; color: var(--gedaempft); font-size: 0.9rem; }
+
+/* Raster für die Messwerte: so viele Spalten, wie Platz ist, mindestens 180 px breit */
+.werte {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.wert {
+  border-top: 2px solid var(--petrol);
+  padding-top: 8px;
+}
+.wert dt { font-size: 0.85rem; color: var(--gedaempft); }
+.wert dd { margin: 4px 0 0; font-size: 1.5rem; font-weight: 700; }
+.wert.gross { grid-column: 1 / -1; }
+.wert.gross dd { font-size: 3.5rem; line-height: 1; }
+.klein { font-size: 0.9rem; font-weight: 400; color: var(--gedaempft); }
+
+/* Abstand zwischen den Karten */
+.karte + .karte { margin-top: 24px; }
+
+.hinweis { margin: 0 0 16px; color: var(--anthrazit); max-width: 70ch; }
+.hinweis.klein { margin: 16px 0 0; }
+
+/* Diagramme */
+.diagramm { margin: 0 0 24px; }
+.diagramm figcaption { font-size: 0.9rem; color: var(--gedaempft); margin-bottom: 4px; }
+.diagramm .titel { font-weight: 700; color: var(--anthrazit); }
+.diagramm .u-legend { font-size: 0.8rem; text-align: left; }
+.diagramm .u-legend .u-series th { font-weight: 400; }
+
+/* Quellenvermerk direkt unter den Daten */
+.quelle { margin: 16px 0 0; font-size: 0.8rem; color: var(--gedaempft); }
+
+.fuss {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+  font-size: 0.85rem;
+  color: var(--gedaempft);
+}
+/* Farblegende der Wolkenklassifikation */
+.klassen-legende {
+  list-style: none;
+  margin: -8px 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px 16px;
+  font-size: 0.8rem;
+  color: var(--anthrazit);
+}
+.klassen-legende li { display: flex; align-items: center; gap: 8px; }
+.farbfeld { width: 14px; height: 14px; flex: none; border: 1px solid var(--linie); }
+
+/* Hinweis bei veralteten Daten */
+.warnung {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  border-left: 4px solid #C0712B;
+  background: #FBF1E8;
+  color: var(--anthrazit);
+}
+.keine-daten { margin: 0; padding: 32px 0; text-align: center; color: var(--gedaempft); }
+
+/* Aufklappbare Erklärungen */
+.erklaerung { border-top: 1px solid var(--linie); padding: 12px 0; max-width: 70ch; }
+.erklaerung:last-of-type { border-bottom: 1px solid var(--linie); }
+.erklaerung summary { cursor: pointer; font-weight: 700; color: var(--petrol); }
+.erklaerung p { margin: 10px 0 0; }
+.karte h2 + .hinweis { margin-top: 12px; }
+
+/* Schmale Bildschirme (Handy): weniger Innenabstand, zwei Spalten Messwerte */
+@media (max-width: 600px) {
+  .kopf { padding: 32px 16px 28px; }
+  main { padding: 20px 16px; }
+  .karte { padding: 16px 12px; }
+  .werte { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .wert dd { font-size: 1.2rem; }
+  .wert.gross dd { font-size: 3rem; }
+}
+
+.fuss-titel { font-size: 1rem; color: var(--anthrazit); margin: 0 0 8px; }
+.fuss ul { margin: 0 0 16px; padding-left: 1.2em; }
+.fuss li + li { margin-top: 6px; }
+.fuss p + .fuss-titel { margin-top: 24px; }
+
+/* Impressum und Datenschutz */
+.kopf-klein { padding: 28px 16px 24px; }
+.kopf-klein h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+.oberzeile a { color: inherit; text-decoration: none; }
+.rechtstext > * { max-width: 70ch; }
+.rechtstext h2 { font-size: 1.05rem; margin: 28px 0 8px; }
+.rechtstext h2:first-child { margin-top: 0; }
+.rechtstext p { margin: 0 0 12px; }
+.stand { color: var(--gedaempft); font-size: 0.85rem; margin-top: 28px; }
+.rechtliches { margin-top: 24px; font-weight: 700; }
+
+/* Zweisprachigkeit: Texte der jeweils anderen Sprache ausblenden */
+html[lang="de"] [data-sprache="en"],
+html[lang="en"] [data-sprache="de"] { display: none !important; }
+
+/* Sprachwahl oben rechts im Kopf */
+.kopf { position: relative; }
+.sprache { display: flex; justify-content: flex-end; gap: 12px; font-size: 0.85rem; margin-bottom: 8px; }
+.sprache a { color: #C0D8DC; text-decoration: none; padding: 2px 0; }
+html[lang="de"] .sprache a[hreflang="de"],
+html[lang="en"] .sprache a[hreflang="en"] { color: var(--offwhite); font-weight: 700; border-bottom: 2px solid #8FC8D4; }
+
+/* Text und Lageskizze nebeneinander, auf dem Handy untereinander */
+.stationen { display: grid; grid-template-columns: 1fr minmax(240px, 340px); gap: 24px; align-items: start; margin-bottom: 8px; }
+.karte-skizze { margin: 0; }
+.karte-skizze svg { width: 100%; height: auto; display: block; border: 1px solid var(--linie); }
+.karte-skizze .station { font-size: 22px; font-weight: 700; fill: var(--anthrazit); }
+.karte-skizze .ort { font-size: 18px; fill: var(--gedaempft); }
+@media (max-width: 700px) {
+  .stationen { grid-template-columns: 1fr; }
+}
+.hinweis-sprache { color: var(--gedaempft); font-style: italic; }
