@@ -27,9 +27,9 @@ jobs:
   bauen:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -44,7 +44,7 @@ jobs:
 
       # Bereits ausgelesene Cloudnet-Dateien vom letzten Lauf zurückholen,
       # damit nur geänderte Dateien neu geladen werden
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: pipeline/.zwischenspeicher
           key: cloudnet-${{ github.run_id }}
@@ -56,9 +56,9 @@ jobs:
       - name: Cloudnet-Daten holen
         run: python pipeline/cloudnet_holen.py
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: app
 
@@ -70,4 +70,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
